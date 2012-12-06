@@ -17,6 +17,8 @@ namespace Intems.Devices
         private readonly List<byte> _response = new List<byte>();
         private readonly List<byte> _bytes = new List<byte>();
 
+        public event EventHandler PackageRetrieved;
+
         public void AddBytes(byte[] bytes)
         {
             _bytes.AddRange(bytes);
@@ -52,11 +54,20 @@ namespace Intems.Devices
                         break;
 
                     case PackageParseState.PackageEnd:
-                        if(@byte == 0x7e)
+                        if (@byte == 0x7e)
+                        {
+                            RaisePackageRetrieved(EventArgs.Empty);
                             _parseState = PackageParseState.PackageStart;
+                        }
                         break;
                 }
             }
+        }
+
+        private void RaisePackageRetrieved(EventArgs e)
+        {
+            var handler = PackageRetrieved;
+            if (handler != null) handler(this, e);
         }
     }
 }
