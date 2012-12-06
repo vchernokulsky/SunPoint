@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Buttons.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="DataRetriever.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="Helpers\Pair.cs" />
     <Compile Include="HVChannelSensor.cs" />

@@ -18,12 +18,7 @@ namespace Intems.Devices
         private readonly string _portName;
         private readonly int _baudRate;
 
-        public TransportLayerWorker() 
-        {
-            _portName = "COM1";
-            _baudRate = 19200;
-        }
-
+        private readonly SerialPort _port;
         public TransportLayerWorker(string portName, int baudRate) 
         {
             _portName = portName;
@@ -38,7 +33,6 @@ namespace Intems.Devices
             
         }
 
-        private SerialPort _port;
         public void SendPackage(Package package)
         {
             if(_port != null && _port.IsOpen)

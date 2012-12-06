@@ -32,5 +32,10 @@ namespace Intems.Devices
             }
             _bytes.Add(LastByte);
         }
+
+        public byte[] Bytes
+        {
+            get { return _bytes.ToArray(); }
+        }
     }
 }
