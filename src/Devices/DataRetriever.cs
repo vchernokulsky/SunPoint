@@ -1,24 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Intems.Devices
 {
     enum PackageParseState
     {
-        WaitByte,
         PackageStart,
         EscSymbolFind,
         PackageEnd
     }
 
+    public class PackageDataArgs : EventArgs
+    {
+        public byte[] Data { get; set; }
+    }
+
     class DataRetriever
     {
+        //здесь храним обработанный пакет
         private readonly List<byte> _response = new List<byte>();
         private readonly List<byte> _bytes = new List<byte>();
 
-        public event EventHandler PackageRetrieved;
+        public event EventHandler<PackageDataArgs> PackageRetrieved;
 
         public void AddBytes(byte[] bytes)
         {
@@ -47,6 +50,7 @@ namespace Intems.Devices
                         break;
                 }
             }
+            _bytes.Clear();
         }
 
         private void ProcessEscByte(byte @byte)
@@ -63,7 +67,7 @@ namespace Intems.Devices
                     _parseState = PackageParseState.EscSymbolFind;
                     break;
                 case 0x7f:
-                    RaisePackageRetrieved(EventArgs.Empty);
+                    CreateData();
                     _parseState = PackageParseState.PackageEnd;
                     break;
                 default:
@@ -72,7 +76,14 @@ namespace Intems.Devices
             }
         }
 
-        private void RaisePackageRetrieved(EventArgs e)
+        private void CreateData()
+        {
+            var args = new PackageDataArgs {Data = _response.ToArray()};
+            RaisePackageRetrieved(args);
+            _response.Clear();
+        }
+
+        private void RaisePackageRetrieved(PackageDataArgs e)
         {
             var handler = PackageRetrieved;
             if (handler != null) handler(this, e);

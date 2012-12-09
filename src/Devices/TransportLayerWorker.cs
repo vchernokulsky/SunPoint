@@ -19,6 +19,7 @@ namespace Intems.Devices
         private readonly int _baudRate;
 
         private readonly SerialPort _port;
+        private readonly DataRetriever _retriever;
         public TransportLayerWorker(string portName, int baudRate) 
         {
             _portName = portName;
@@ -26,11 +27,25 @@ namespace Intems.Devices
 
             _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
             _port.DataReceived += OnDataReceived;
+
+            _retriever = new DataRetriever();
+            _retriever.PackageRetrieved += OnPackageRetrieved;
         }
+
+        private void OnPackageRetrieved(object sender, PackageDataArgs packageDataArgs)
+        {
+            var data = packageDataArgs.Data;
+            foreach (var b in data)
+                Console.Write(b + " ");
+            Console.WriteLine();
+        }
+
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            
+            var buffer = new byte[_port.BytesToRead];
+            _port.Read(buffer, 0, buffer.Length);
+            _retriever.AddBytes(buffer);
         }
 
         public void SendPackage(Package package)
