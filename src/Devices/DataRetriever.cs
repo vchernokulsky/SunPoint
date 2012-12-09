@@ -7,6 +7,7 @@ namespace Intems.Devices
 {
     enum PackageParseState
     {
+        WaitByte,
         PackageStart,
         EscSymbolFind,
         PackageEnd
@@ -28,39 +29,46 @@ namespace Intems.Devices
         private PackageParseState _parseState = PackageParseState.PackageEnd;
         private void ProcessData()
         {
-            bool esc = false;
             foreach (var @byte in _bytes)
             {
                 switch (_parseState)
                 {
                     case PackageParseState.PackageStart:
-                        switch (@byte)
-                        {
-                            case 0x7d:
-                                _parseState = PackageParseState.EscSymbolFind;
-                                break;
-                            case 0x7f:
-                                _parseState = PackageParseState.PackageEnd;
-                                break;
-                            default:
-                                _response.Add(@byte);
-                                break;
-                        }
+                        ProcessByteOfPackage(@byte);
                         break;
 
                     case PackageParseState.EscSymbolFind:
-                        _response.Add((byte)(@byte ^ 20));
-                        _parseState = PackageParseState.PackageStart;
+                        ProcessEscByte(@byte);
                         break;
 
                     case PackageParseState.PackageEnd:
                         if (@byte == 0x7e)
-                        {
-                            RaisePackageRetrieved(EventArgs.Empty);
                             _parseState = PackageParseState.PackageStart;
-                        }
                         break;
                 }
+            }
+        }
+
+        private void ProcessEscByte(byte @byte)
+        {
+            _response.Add((byte) (@byte ^ 20));
+            _parseState = PackageParseState.PackageStart;
+        }
+
+        private void ProcessByteOfPackage(byte @byte)
+        {
+            switch (@byte)
+            {
+                case 0x7d:
+                    _parseState = PackageParseState.EscSymbolFind;
+                    break;
+                case 0x7f:
+                    RaisePackageRetrieved(EventArgs.Empty);
+                    _parseState = PackageParseState.PackageEnd;
+                    break;
+                default:
+                    _response.Add(@byte);
+                    break;
             }
         }
 
