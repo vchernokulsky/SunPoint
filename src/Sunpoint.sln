@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevSpike", "DevSpike\DevSpi
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spikes", "spikes", "{AE2788DD-2212-4185-8C6B-7A4C3CAE4C61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{94726DE2-67A3-47E8-8CA7-9395A3F5579E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,16 @@ Global
 		{07C4D103-5351-4D20-BBAF-FBCE5FE6FF6C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{07C4D103-5351-4D20-BBAF-FBCE5FE6FF6C}.Release|x86.ActiveCfg = Release|x86
 		{07C4D103-5351-4D20-BBAF-FBCE5FE6FF6C}.Release|x86.Build.0 = Release|x86
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{94726DE2-67A3-47E8-8CA7-9395A3F5579E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

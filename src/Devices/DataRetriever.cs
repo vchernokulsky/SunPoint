@@ -15,7 +15,7 @@ namespace Intems.Devices
         public byte[] Data { get; set; }
     }
 
-    class DataRetriever
+    public class DataRetriever
     {
         //здесь храним обработанный пакет
         private readonly List<byte> _response = new List<byte>();
