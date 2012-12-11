@@ -25,6 +25,8 @@ namespace Intems.Devices
 
         public void AddBytes(byte[] bytes)
         {
+            if (bytes == null) return;
+
             _bytes.AddRange(bytes);
             ProcessData();
         }

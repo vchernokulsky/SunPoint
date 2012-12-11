@@ -27,33 +27,42 @@ namespace Intems.Devices
 
             _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
             _port.DataReceived += OnDataReceived;
+            _port.Open();
 
             _retriever = new DataRetriever();
             _retriever.PackageRetrieved += OnPackageRetrieved;
         }
 
-        private void OnPackageRetrieved(object sender, PackageDataArgs packageDataArgs)
-        {
-            var data = packageDataArgs.Data;
-            foreach (var b in data)
-                Console.Write(b + " ");
-            Console.WriteLine();
-        }
-
-
-        private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            var buffer = new byte[_port.BytesToRead];
-            _port.Read(buffer, 0, buffer.Length);
-            _retriever.AddBytes(buffer);
-        }
+        public event EventHandler<PackageDataArgs> PackageReceived;
 
         public void SendPackage(Package package)
         {
-            if(_port != null && _port.IsOpen)
+            if (_port != null && _port.IsOpen)
             {
                 _port.Write(package.Bytes, 0, package.Bytes.Length);
             }
+        }
+
+        private void OnPackageRetrieved(object sender, PackageDataArgs args)
+        {
+            var handler = PackageReceived;
+            if (handler != null)
+                handler(this, args);
+        }
+
+        private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            byte[] buffer = null;
+            try
+            {
+                buffer = new byte[_port.BytesToRead];
+                _port.Read(buffer, 0, buffer.Length);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            _retriever.AddBytes(buffer);
         }
 
         private object SendPackage(int devId, IList<byte> package)
