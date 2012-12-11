@@ -7,6 +7,7 @@ namespace Tests
     public class DataRetrieverTest
     {
         private byte[] _data;
+
         private void OnPackageRetrieved(object sender, PackageDataArgs args)
         {
             _data = args.Data;
@@ -24,10 +25,10 @@ namespace Tests
             var retriever = new DataRetriever();
             retriever.PackageRetrieved += OnPackageRetrieved;
 
-            var pkg = new byte[]{0x7e, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f};
+            var pkg = new byte[] {0x7e, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f};
             retriever.AddBytes(pkg);
-            var expected = new byte[] { 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35 };
 
+            var expected = new byte[] {0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35};
             CollectionAssert.AreEquivalent(expected, _data);
         }
 
@@ -37,13 +38,54 @@ namespace Tests
             var retriever = new DataRetriever();
             retriever.PackageRetrieved += OnPackageRetrieved;
 
-            var pkg = new byte[] { //first package
-                                   0x7e, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f, 
-                                   //second package
-                                   0x7e, 0x01, 0x02, 0x01, 0x00 };
+            var pkg = new byte[]
+                          {
+                              //first package
+                              0x7e, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f,
+                              //second package
+                              0x7e, 0x01, 0x02, 0x01, 0x00
+                          };
             retriever.AddBytes(pkg);
-            var expected = new byte[] { 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35 };
 
+            var expected = new byte[] {0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35};
+            CollectionAssert.AreEquivalent(expected, _data);
+        }
+
+        [Test]
+        public void OneFragmentedPackage()
+        {
+            var retriever = new DataRetriever();
+            retriever.PackageRetrieved += OnPackageRetrieved;
+
+            var pkg1 = new byte[] { 0x7e, 0x01, 0x02, 0x01, 0x00, 0x00 };
+            var pkg2 = new byte[] { 0x00, 0x3c, 0x70, 0x35, 0x7f };
+
+            retriever.AddBytes(pkg1);
+            retriever.AddBytes(pkg2);
+
+            var expected = new byte[] { 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35 };
+            CollectionAssert.AreEquivalent(expected, _data);
+        }
+
+        [Test]
+        public void TwoFragmentedPackages()
+        {
+            var retriever = new DataRetriever();
+            retriever.PackageRetrieved += OnPackageRetrieved;
+
+            var pkg1 = new byte[]
+                           {
+                               //first package
+                               0x7e, 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f,
+                               //second package
+                               0x7e, 0x01, 0x02, 0x01, 0x00
+                           };
+            var pkg2 = new byte[] { 0x00, 0x00, 0x3c, 0x70, 0x35, 0x7f };
+
+            retriever.AddBytes(pkg1);
+            retriever.AddBytes(pkg2);
+
+            var expected = new byte[] { 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, 0x70, 0x35 };
             CollectionAssert.AreEquivalent(expected, _data);
         }
     }
