@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Intems.Devices
+namespace Intems.Devices.Commands
 {
     public class Package
     {

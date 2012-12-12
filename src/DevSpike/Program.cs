@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
 using Intems.Devices;
+using Intems.Devices.Commands;
 using Intems.Devices.Helpers;
 using Intems.Devices.Interfaces;
 
@@ -12,7 +13,7 @@ namespace DevSpike
     {
         static void Main(string[] args)
         {
-//            ITransportLayerWorker worker = new TransportLayerWorker("COM3", 19200);
+//            ITransportLayerWorker worker = new TransportLayerWorker("COM5", 19200);
 //            worker.InitDevice();
 //            var dev = new SolaryDevice(1, worker);
 //
@@ -23,10 +24,16 @@ namespace DevSpike
 //            if(btn.StartButton)
 //                dev.Start(SolaryAction.Sunbath, 60);
 
+            var worker = new TransportLayerWorker("COM5", 19200);
 
-            var helper = new PackageHelper();
-            var cmd = new List<byte>(new byte[] {0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c});
-            var pkg = helper.PackToPackage(cmd);
+            Command cmd = new GetBtnStateCommand(1);
+            worker.SendPackage(new Package(cmd));
+            worker.PackageReceived += (sender, dataArgs) =>
+                                          {
+                                              foreach (var b in dataArgs.Data)
+                                                  Console.Write(b + " ");
+                                              Console.WriteLine();
+                                          };
 
             Console.WriteLine("Press any key");
             Console.ReadKey();

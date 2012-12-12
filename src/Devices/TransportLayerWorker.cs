@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using Intems.Devices.Commands;
 using Intems.Devices.Helpers;
 using Intems.Devices.Interfaces;
 using UV.Devices;

@@ -46,8 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BtnPressWaiter.cs" />
     <Compile Include="Buttons.cs" />
-    <Compile Include="Command.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\GetBtnStateCommand.cs" />
+    <Compile Include="Commands\GetDevDescCommand.cs" />
+    <Compile Include="Commands\SetChannelStateCommand.cs" />
     <Compile Include="DataRetriever.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="Helpers\Pair.cs" />
@@ -57,7 +61,7 @@
     <Compile Include="Interfaces\ISolaryDevice.cs" />
     <Compile Include="Interfaces\ITransportLayerWorker.cs" />
     <Compile Include="Helpers\PackageHelper.cs" />
-    <Compile Include="Package.cs" />
+    <Compile Include="Commands\Package.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\SerialPortSettings.cs" />
     <Compile Include="SolaryDevice.cs" />
