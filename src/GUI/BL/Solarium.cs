@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Timers;
 using Intems.Devices;
+using Intems.Devices.Commands;
 using Intems.Devices.Interfaces;
 
 namespace Intems.SunPoint.BL
@@ -17,10 +18,9 @@ namespace Intems.SunPoint.BL
         private readonly Timer _timerStub;
         public Solarium()
         {
-            ITransportLayerWorker worker = new TransportLayerWorker("COM5", 9600);
-            worker.InitDevice();
+            ITransportLayerWorker worker = new TransportLayerWorker("COM5", 19200);
+//            worker.InitDevice();
 
-            _solary = new SolaryDevice(DevNumber, worker);
             _timerStub = new Timer(1000);
             _timerStub.Elapsed += OnTimerElapsed;
         }
@@ -43,8 +43,8 @@ namespace Intems.SunPoint.BL
 
         public void Start()
         {
-            //_solary.Start(SolaryAction.Sunbath, _time);
-            _timerStub.Start();
+            var cmd = new SetChannelStateCommand(DevNumber);
+            var pkg = new Package(cmd);
             RaiseSunbathStarted(EventArgs.Empty);
         }
 
