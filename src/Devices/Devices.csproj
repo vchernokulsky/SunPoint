@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Helpers\SerialPortSettings.cs" />
     <Compile Include="SolaryDevice.cs" />
+    <Compile Include="TickUpdater.cs" />
     <Compile Include="TransportLayerWorker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
