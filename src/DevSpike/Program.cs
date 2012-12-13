@@ -28,7 +28,7 @@ namespace DevSpike
                                               Console.WriteLine();
                                           };
 
-            var updater = new TickUpdater(worker);
+            var updater = new TicksUpdater(worker);
             updater.Start();
 
             Console.WriteLine("Press any key");

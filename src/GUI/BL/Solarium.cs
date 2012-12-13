@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Timers;
 using Intems.Devices;
 using Intems.Devices.Commands;
 using Intems.Devices.Interfaces;
@@ -9,49 +8,42 @@ namespace Intems.SunPoint.BL
     class Solarium
     {
         private const int DevNumber = 1;
-        private readonly TransportLayerWorker _worker;
+        private const int ChannelNumber = 1;
 
+        private readonly TransportLayerWorker _worker;
+        private readonly TicksUpdater _ticksUpdater;
 
         public event EventHandler SunbathStarted;
         public event EventHandler SunbathStopped;
         public event EventHandler TickChanged;
 
-        private readonly Timer _timerStub;
         public Solarium()
         {
             _worker = new TransportLayerWorker("COM5", 19200);
 
-            _timerStub = new Timer(1000);
-            _timerStub.Elapsed += OnTimerElapsed;
+            _ticksUpdater = new TicksUpdater(_worker);
+            _ticksUpdater.TicksChanged += OnTicksChanged;
         }
 
-        private void OnTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+        private void OnTicksChanged(object sender, TicksUpdaterArgs e)
         {
-            Time--;
-            if (Time > 0)
-            {
+            if(e.Ticks > 0)
                 RaiseTickChanged(EventArgs.Empty);
-            }
             else
-            {
-                _timerStub.Stop();
                 RaiseSunbathStopped(EventArgs.Empty);
-            }
-
         }
 
         public void Start()
         {
-            var cmd = new SetChannelStateCommand(DevNumber);
-            var pkg = new Package(cmd);
+            var pkg = new Package(new SetChannelStateCommand(DevNumber, ChannelNumber, 0, 60));
             _worker.SendPackage(pkg);
+            _ticksUpdater.Start();
+
             RaiseSunbathStarted(EventArgs.Empty);
         }
 
         public void Stop()
         {
-            //_solary.Stop(SolaryAction.Sunbath);
-            _timerStub.Stop();
             RaiseSunbathStopped(EventArgs.Empty);
         }
 
