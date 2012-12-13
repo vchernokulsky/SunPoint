@@ -6,7 +6,7 @@ namespace Intems.Devices.Commands
     {
         private readonly byte _deviceId;
         private readonly byte _function;
-        private readonly byte[] _params;
+        protected byte[] Params;
 
         public Command(byte deviceId, byte function)
         {
@@ -16,7 +16,7 @@ namespace Intems.Devices.Commands
 
         public Command(byte deviceId, byte function, byte[] @params) : this(deviceId, function)
         {
-            _params = @params;
+            Params = @params;
         }
 
         public byte[] Bytes
@@ -24,8 +24,8 @@ namespace Intems.Devices.Commands
             get
             {
                 var chunk1 = new[]{_deviceId, _function};
-                if(_params != null)
-                    chunk1 = chunk1.Concat(_params).ToArray();
+                if(Params != null)
+                    chunk1 = chunk1.Concat(Params).ToArray();
                 //считаем и добавляем CRC в команду
                 var crc = CalculateCRC(0, chunk1);
                 byte[] result = chunk1.Concat(new[] {(byte) (crc >> 8), (byte) (crc)}).ToArray();

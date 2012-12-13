@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Text;
 using System.Threading;
 using Intems.Devices;
 using Intems.Devices.Commands;
@@ -26,18 +27,20 @@ namespace DevSpike
 
             var worker = new TransportLayerWorker("COM5", 19200);
 
-            var waiter = new BtnPressWaiter(worker);
-            waiter.BtnPressed += (sender, pressArgs) => Console.WriteLine(pressArgs.Button);
+//            var waiter = new BtnPressWaiter(worker);
+//            waiter.BtnPressed += (sender, pressArgs) => Console.WriteLine(pressArgs.Button);
 
-//            Command cmd = new GetBtnStateCommand(1);
-//            var package = new Package(cmd);
-//            worker.SendPackage(package);
-//            worker.PackageReceived += (sender, dataArgs) =>
-//                                          {
-//                                              foreach (var b in dataArgs.Data)
-//                                                  Console.Write(b + " ");
-//                                              Console.WriteLine();
-//                                          };
+            var pkg0 = new Package(new SetChannelStateCommand(1, 0, 60));
+            var pkg1 = new Package(new GetChannelStateCommand(1));
+            var pkg2 = new Package(new DevResetCommand(1));
+            worker.SendPackage(pkg0);
+            //worker.SendPackage(pkg2);
+            worker.PackageReceived += (sender, dataArgs) =>
+                                          {
+                                              var bytes = dataArgs.Data;
+                                              foreach (var b in bytes) Console.Write(b + " ");
+                                              Console.WriteLine();
+                                          };
 
             Console.WriteLine("Press any key");
             Console.ReadKey();

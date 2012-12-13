@@ -49,7 +49,9 @@
     <Compile Include="BtnPressWaiter.cs" />
     <Compile Include="Buttons.cs" />
     <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\DevResetCommand.cs" />
     <Compile Include="Commands\GetBtnStateCommand.cs" />
+    <Compile Include="Commands\GetChannelStateCommand.cs" />
     <Compile Include="Commands\GetDevDescCommand.cs" />
     <Compile Include="Commands\SetChannelStateCommand.cs" />
     <Compile Include="DataRetriever.cs" />
