@@ -1,12 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Timers;
 using Intems.Devices.Commands;
 
 namespace Intems.Devices
 {
+    public enum PressedBtn
+    {
+        None,
+        StartBtn,
+        StopBtn
+    }
+    public class BtnPressArgs : EventArgs
+    {
+        public PressedBtn Button { get; set; }
+    }
+
     public class BtnPressWaiter
     {
         private readonly Timer _timer;
@@ -22,9 +30,34 @@ namespace Intems.Devices
             _timer.Start();
         }
 
+        public event EventHandler<BtnPressArgs> BtnPressed;
+
+        public void RaiseBtnPressed(BtnPressArgs e)
+        {
+            EventHandler<BtnPressArgs> handler = BtnPressed;
+            if (handler != null) handler(this, e);
+        }
+
         private void OnPackageReceived(object sender, PackageDataArgs packageDataArgs)
         {
-            
+            PressedBtn result = PressedBtn.None;
+
+            var bytes = packageDataArgs.Data;
+            byte stateByte = bytes[3];
+            bool start = (stateByte & 0x01) == 1;
+            bool stop = ((stateByte >> 1) & 0x01) == 1;
+
+            if(start)
+                result = PressedBtn.StartBtn;
+            else
+                if(stop)
+                    result = PressedBtn.StopBtn;
+
+            if (start || stop)
+            {
+                _timer.Stop();
+                RaiseBtnPressed(new BtnPressArgs {Button = result});
+            }
         }
 
         private void OnTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)

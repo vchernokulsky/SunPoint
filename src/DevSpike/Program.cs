@@ -26,14 +26,18 @@ namespace DevSpike
 
             var worker = new TransportLayerWorker("COM5", 19200);
 
-            Command cmd = new GetBtnStateCommand(1);
-            worker.SendPackage(new Package(cmd));
-            worker.PackageReceived += (sender, dataArgs) =>
-                                          {
-                                              foreach (var b in dataArgs.Data)
-                                                  Console.Write(b + " ");
-                                              Console.WriteLine();
-                                          };
+            var waiter = new BtnPressWaiter(worker);
+            waiter.BtnPressed += (sender, pressArgs) => Console.WriteLine(pressArgs.Button);
+
+//            Command cmd = new GetBtnStateCommand(1);
+//            var package = new Package(cmd);
+//            worker.SendPackage(package);
+//            worker.PackageReceived += (sender, dataArgs) =>
+//                                          {
+//                                              foreach (var b in dataArgs.Data)
+//                                                  Console.Write(b + " ");
+//                                              Console.WriteLine();
+//                                          };
 
             Console.WriteLine("Press any key");
             Console.ReadKey();

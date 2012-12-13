@@ -1,6 +1,6 @@
-namespace UV.Devices
+namespace Intems.Devices.Commands
 {
-    public class DeviceHelper
+    public class CmdCodes
     {
         //Function codes
         public static byte GET_DEV_DESCRIPTION = 0;

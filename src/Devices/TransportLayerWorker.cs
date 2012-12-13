@@ -90,7 +90,7 @@ namespace Intems.Devices
         public string GetDeviceDescription(int devId) {
             IList<byte> package = new List<byte>();
             package.Add((byte) devId);
-            package.Add(DeviceHelper.GET_DEV_DESCRIPTION);
+            package.Add(CmdCodes.GET_DEV_DESCRIPTION);
 
             var answer = (IList<byte>) SendPackage(devId, package);
 
@@ -105,7 +105,7 @@ namespace Intems.Devices
         public void ResetDevice(int devId) {
             IList<byte> package = new List<byte>();
             package.Add((byte) devId);
-            package.Add(DeviceHelper.DEV_RESET);
+            package.Add(CmdCodes.DEV_RESET);
 
             SendPackage(devId, package);
         }
@@ -115,7 +115,7 @@ namespace Intems.Devices
 
             IList<byte> package = new List<byte>();
             package.Add((byte) devId);
-            package.Add(DeviceHelper.GET_CHANNEL_STATE);
+            package.Add(CmdCodes.GET_CHANNEL_STATE);
             package.Add((byte) channel);
 
             IList<byte> answer = (IList<byte>) SendPackage(devId, package);
@@ -130,7 +130,7 @@ namespace Intems.Devices
         public void SetChannelState(int devId, int channel, int delay, int time) {
             var package = new List<byte>
                               {
-                                  (byte) devId, DeviceHelper.SET_CHANNEL_STATE, (byte) channel
+                                  (byte) devId, CmdCodes.SET_CHANNEL_STATE, (byte) channel
                               };
 
             byte[] convertedDelay = _packageHelper.SplitToArray((ushort) delay);
@@ -145,7 +145,7 @@ namespace Intems.Devices
             Buttons result = null;
             IList<byte> package = new List<byte>();
             package.Add((byte) devId);
-            package.Add(DeviceHelper.GET_DEV_STATE);
+            package.Add(CmdCodes.GET_DEV_STATE);
 
             IList<byte> answer = (IList<byte>)SendPackage(devId, package);
 
@@ -163,7 +163,7 @@ namespace Intems.Devices
 
             IList<byte> package = new List<byte>();
             package.Add((byte) devId);
-            package.Add(DeviceHelper.GET_DEV_STATE);
+            package.Add(CmdCodes.GET_DEV_STATE);
 
             IList<byte> answer = (IList<byte>)SendPackage(devId, package);
 

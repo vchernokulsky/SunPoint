@@ -2,7 +2,7 @@
 {
     public class GetDevDescCommand : Command
     {
-        private const byte Function = 0x00;
+        private static readonly byte Function = CmdCodes.GET_DEV_DESCRIPTION;
 
         public GetDevDescCommand(byte deviceId) : base(deviceId, Function)
         {}

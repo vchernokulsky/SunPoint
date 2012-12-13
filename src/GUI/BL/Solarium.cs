@@ -9,7 +9,8 @@ namespace Intems.SunPoint.BL
     class Solarium
     {
         private const int DevNumber = 1;
-        private readonly SolaryDevice _solary;
+        private readonly TransportLayerWorker _worker;
+
 
         public event EventHandler SunbathStarted;
         public event EventHandler SunbathStopped;
@@ -18,8 +19,7 @@ namespace Intems.SunPoint.BL
         private readonly Timer _timerStub;
         public Solarium()
         {
-            ITransportLayerWorker worker = new TransportLayerWorker("COM5", 19200);
-//            worker.InitDevice();
+            _worker = new TransportLayerWorker("COM5", 19200);
 
             _timerStub = new Timer(1000);
             _timerStub.Elapsed += OnTimerElapsed;
@@ -34,7 +34,6 @@ namespace Intems.SunPoint.BL
             }
             else
             {
-                //_solary.Stop(SolaryAction.Sunbath);
                 _timerStub.Stop();
                 RaiseSunbathStopped(EventArgs.Empty);
             }
@@ -45,6 +44,7 @@ namespace Intems.SunPoint.BL
         {
             var cmd = new SetChannelStateCommand(DevNumber);
             var pkg = new Package(cmd);
+            _worker.SendPackage(pkg);
             RaiseSunbathStarted(EventArgs.Empty);
         }
 

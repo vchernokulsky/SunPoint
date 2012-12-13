@@ -56,7 +56,7 @@
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="Helpers\Pair.cs" />
     <Compile Include="HVChannelSensor.cs" />
-    <Compile Include="Helpers\DeviceHelper.cs" />
+    <Compile Include="Commands\CmdCodes.cs" />
     <Compile Include="DeviceManager.cs" />
     <Compile Include="Interfaces\ISolaryDevice.cs" />
     <Compile Include="Interfaces\ITransportLayerWorker.cs" />
