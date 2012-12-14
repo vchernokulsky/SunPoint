@@ -40,12 +40,12 @@ namespace Intems.Devices
 
             uint ticks = 0;
             ticks = TicksFromPackage(args, ticks);
+            //
             if (_ticks == 0 && ticks > 0)
             {
                 _ticks = ticks;
                 RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
             }
-
             if(ticks < _ticks)
             {
                 if (ticks == 0)
