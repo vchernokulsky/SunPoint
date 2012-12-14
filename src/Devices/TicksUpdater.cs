@@ -35,9 +35,11 @@ namespace Intems.Devices
 
         private void OnPackageReceived(object sender, PackageDataArgs args)
         {
+            //TODO: надо решить вопрос обработки ответов
+            if(args.Data[1]!=0x03) return;
+
             uint ticks = 0;
             ticks = TicksFromPackage(args, ticks);
-
             if (_ticks == 0 && ticks > 0)
             {
                 _ticks = ticks;
@@ -46,6 +48,9 @@ namespace Intems.Devices
 
             if(ticks < _ticks)
             {
+                if (ticks == 0)
+                    _timer.Stop();
+
                 _ticks = ticks;
                 RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
             }

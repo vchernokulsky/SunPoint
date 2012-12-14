@@ -70,6 +70,7 @@
                                 Margin="0, -350,0,0"
                                 Text="{Binding SunbathTicks, Converter={StaticResource ResourceKey=timeConverter}}" 
                                 FontSize="120" FontFamily="Bookman Old Style"
+                                Visibility="{Binding IsStarted, Converter={StaticResource ResourceKey=boolToVisConverter}}"
                                 Style="{StaticResource ResourceKey=fallDownStyle}"/>
                     <Grid>
                     <Grid.ColumnDefinitions>

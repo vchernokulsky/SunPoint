@@ -20,9 +20,7 @@ namespace Intems.SunPoint.BL
         public Solarium()
         {
             _worker = new TransportLayerWorker("COM5", 19200);
-
             _ticksUpdater = new TicksUpdater(_worker);
-            _ticksUpdater.TicksChanged += OnTicksChanged;
         }
 
         private void OnTicksChanged(object sender, TicksUpdaterArgs e)
@@ -35,8 +33,11 @@ namespace Intems.SunPoint.BL
 
         public void Start()
         {
+            //посылаем команду на установку занчения в канале
             var pkg = new Package(new SetChannelStateCommand(DevNumber, ChannelNumber, 0, 60));
             _worker.SendPackage(pkg);
+            //запускаем диспетчер обратного отсчета
+            _ticksUpdater.TicksChanged += OnTicksChanged;
             _ticksUpdater.Start();
 
             RaiseSunbathStarted(EventArgs.Empty);
@@ -44,6 +45,7 @@ namespace Intems.SunPoint.BL
 
         public void Stop()
         {
+            _ticksUpdater.TicksChanged -= OnTicksChanged;
             RaiseSunbathStopped(EventArgs.Empty);
         }
 
