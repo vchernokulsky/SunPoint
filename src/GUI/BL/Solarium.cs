@@ -1,7 +1,6 @@
 ﻿using System;
 using Intems.Devices;
 using Intems.Devices.Commands;
-using Intems.Devices.Interfaces;
 
 namespace Intems.SunPoint.BL
 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Intems.Devices
 {
@@ -87,8 +88,13 @@ namespace Intems.Devices
 
         private void RaisePackageRetrieved(PackageDataArgs e)
         {
-            var handler = PackageRetrieved;
-            if (handler != null) handler(this, e);
+            var thread = new Thread(() =>
+                                        {
+                                            var handler = PackageRetrieved;
+                                            if (handler != null)
+                                                handler(this, e);
+                                        }){Name = "GUI notification thread"};
+            thread.Start();
         }
     }
 }

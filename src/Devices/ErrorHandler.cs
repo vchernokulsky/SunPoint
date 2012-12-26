@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Intems.Devices {
+namespace Intems.Devices 
+{
+    public enum DevResult { OK, TimoutExpired, CrcFailed, PortFailed, Unknown }
 
     public class ErrorEnvironment {
         private readonly DevResult _errorType;

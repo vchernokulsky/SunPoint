@@ -40,7 +40,6 @@ namespace Intems.Devices
 
             uint ticks = 0;
             ticks = TicksFromPackage(args, ticks);
-            //
             if (_ticks == 0 && ticks > 0)
             {
                 _ticks = ticks;
