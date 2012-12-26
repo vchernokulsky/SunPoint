@@ -55,13 +55,12 @@
     <Compile Include="Commands\SetChannelStateCommand.cs" />
     <Compile Include="DataRetriever.cs" />
     <Compile Include="ErrorHandler.cs" />
-    <Compile Include="Helpers\Pair.cs" />
     <Compile Include="Commands\CmdCodes.cs" />
     <Compile Include="Interfaces\ITransportLayerWorker.cs" />
     <Compile Include="Helpers\PackageHelper.cs" />
     <Compile Include="Commands\Package.cs" />
+    <Compile Include="PackageProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Helpers\SerialPortSettings.cs" />
     <Compile Include="TicksUpdater.cs" />
     <Compile Include="TransportLayerWorker.cs" />
   </ItemGroup>
