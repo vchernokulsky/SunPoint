@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using Intems.Devices;
 using Intems.Devices.Commands;
-using Intems.Devices.Helpers;
 using Intems.Devices.Interfaces;
 
 namespace DevSpike
