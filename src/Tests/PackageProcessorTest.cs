@@ -24,12 +24,12 @@ namespace Tests
         public void GoodPackageTest()
         {
             //пакет без стартового и стопового байтов
-            var pkgBytes = new byte[] { 0x01, 0x02, 0x01, 0x00, 0x00, 0x00, 0x3c, /*CRC bytes ->*/0x70, 0x35 };
+            var pkgBytes = new byte[] { 0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x3c, /*CRC bytes ->*/0x41, 0xb8 };
 
             var expected = new PackageProcessResult {Type = AnswerType.Ok, Address = 0x00, Function = 0x01};
-            var data = _processor.ProcessBytes(pkgBytes);
+            var actual = _processor.ProcessBytes(pkgBytes);
 
-            Assert.NotNull(data);
+            Assert.AreEqual(expected, actual);
         }
     }
 }
