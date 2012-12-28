@@ -14,9 +14,20 @@ namespace Intems.Devices
         Error
     }
 
+    public enum ErrorType
+    {
+        None,
+        FunctionNotExist,
+        IncorrectQuerryData,
+        DeviceBusy,
+        DeviceFailed,
+        AccessDeny
+    }
+
     public class PackageProcessResult
     {
         public AnswerType Type { get; set; }
+        public ErrorType ErrorType { get; set; }
 
         public byte Address { get; set; }
         public byte Function { get; set; }
@@ -29,7 +40,7 @@ namespace Intems.Devices
             var val = obj as PackageProcessResult;
             if(val != null)
             {
-                isEqual = (val.Address == Address) && (val.Function == Function);
+                isEqual = (val.Address == Address) && (val.Function == Function) && (val.Type == Type);
             }
             return isEqual;
         }
@@ -47,8 +58,9 @@ namespace Intems.Devices
 
     public class PackageProcessor
     {
-        private const int MinPackageLength = 4;
         private const int CRCByteLength = 2;
+        private const int HeadLength = 2;
+        private const int MinPackageLength = HeadLength + CRCByteLength;
 
         public PackageProcessResult ProcessBytes(byte[] bytes)
         {
@@ -66,12 +78,18 @@ namespace Intems.Devices
 
                 if(CalcCRC(data)==crcInPakage)
                 {
-                    result = new PackageProcessResult { Address = bytes[0], Function = bytes[1] };
-                    Array.ConstrainedCopy(data, 2, result.Params, 0, result.Params.Length);
+                    result = new PackageProcessResult { Type = AnswerType.Ok, Address = bytes[0], Function = bytes[1] };
+                    if(data.Length==HeadLength + 2 && data[2]==0x80)
+                    {
+                        result.Type = AnswerType.Error;
+                        result.ErrorType = (ErrorType) data[3];
+                    }
+                    result.Params = new byte[bytes.Length - MinPackageLength];
+                    Array.ConstrainedCopy(data, HeadLength, result.Params, 0, result.Params.Length);
                 }
                 else
                 {
-                    result = new PackageProcessResult(){Type = AnswerType.BadPackage};
+                    result = new PackageProcessResult {Type = AnswerType.BadPackage};
                 }
                 
             }
