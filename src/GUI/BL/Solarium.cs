@@ -30,10 +30,11 @@ namespace Intems.SunPoint.BL
                 RaiseSunbathStopped(EventArgs.Empty);
         }
 
-        public void Start()
+        public void Start(int ticks)
         {
             //посылаем команду на установку занчения в канале
-            var pkg = new Package(new SetChannelStateCommand(DevNumber, ChannelNumber, 0, 60));
+            var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, (ushort)ticks);
+            var pkg = new Package(cmd);
             _worker.SendPackage(pkg);
             //запускаем диспетчер обратного отсчета
             _ticksUpdater.TicksChanged += OnTicksChanged;

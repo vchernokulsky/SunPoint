@@ -17,7 +17,7 @@ namespace Intems.SunPoint.ViewModels
         public void StartSolary()
         {
             _solarium.Time = SunbathTicks;
-            _solarium.Start();
+            _solarium.Start(SunbathTicks);
             IsStarted = true;
         }
 
