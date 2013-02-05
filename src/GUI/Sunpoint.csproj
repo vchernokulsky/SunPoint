@@ -87,6 +87,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BL\DeviceFinder.cs" />
     <Compile Include="BL\Solarium.cs" />
     <Compile Include="BoolToVisibilityConverter.cs" />
     <Compile Include="NumKeysControl.xaml.cs">
