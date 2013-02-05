@@ -11,7 +11,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <Ellipse>
+                            <Ellipse x:Name="btnEllipse">
                                 <Ellipse.Fill>
                                     <LinearGradientBrush>
                                         <GradientStop Color="Yellow" Offset="0" />
@@ -21,6 +21,16 @@
                             </Ellipse>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnEllipse" Property="Stroke" Value="Black"/>
+                                <Setter TargetName="btnEllipse" Property="StrokeThickness" Value="2.0"/>
+                            </Trigger> 
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnEllipse" Property="Stroke" Value="Gray"/>
+                                <Setter Property="FontSize" Value="18"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -30,7 +40,7 @@
             <Setter Property="FontSize" Value="20"/>
         </Style>
 
-        <Style x:Key="CnlBtnNormalStyle" TargetType="{x:Type Button}">
+      <Style x:Key="CnlBtnNormalStyle" TargetType="{x:Type Button}">
             <Setter Property="Background" Value="#EED6E4"/>
             <Setter Property="FontStyle" Value="Normal"/>
             <Setter Property="FontFamily" Value="Bookman Old Style"/>

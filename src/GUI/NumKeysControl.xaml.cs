@@ -52,10 +52,17 @@ namespace Intems.SunPoint
 
             string tag = button.Tag.ToString();
             _pressedKeys += tag;
-            var number = Int32.Parse(_pressedKeys);
-            if(number <= 99)
-                _result = Int32.Parse(_pressedKeys);
 
+            try
+            {
+                var number = Int32.Parse(_pressedKeys);
+                if(number <= 99)
+                    _result = Int32.Parse(_pressedKeys);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
             RaiseChangedEvent();
         }
 
