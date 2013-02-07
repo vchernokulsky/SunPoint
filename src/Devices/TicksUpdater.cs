@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Timers;
 using Intems.Devices.Commands;
 
@@ -16,6 +17,7 @@ namespace Intems.Devices
 
         private readonly Timer _timer;
         private readonly TransportLayerWorker _worker;
+        private readonly PackageProcessor _packageProcessor;
 
         public event EventHandler<TicksUpdaterArgs> TicksChanged;
 
@@ -23,6 +25,8 @@ namespace Intems.Devices
         {
             _worker = worker;
             _worker.PackageReceived += OnPackageReceived;
+
+            _packageProcessor = new PackageProcessor();
 
             _timer = new Timer {Interval = TimeInterval};
             _timer.Elapsed += OnTimerElapsed;
@@ -35,32 +39,23 @@ namespace Intems.Devices
 
         private void OnPackageReceived(object sender, PackageDataArgs args)
         {
-            //TODO: надо решить вопрос обработки ответов
-            if(args.Data[1]!=0x03) return;
-
-            uint ticks = 0;
-            ticks = TicksFromPackage(args, ticks);
-            if (_ticks == 0 && ticks > 0)
+            var result = _packageProcessor.ProcessBytes(args.Data);
+            if (result != null)
             {
-                _ticks = ticks;
-                RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
-            }
-            if(ticks < _ticks)
-            {
-                if (ticks == 0)
-                    _timer.Stop();
+                uint ticks = TicksFromBytes(result.Params);
+                if (ticks < _ticks)
+                    RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
 
                 _ticks = ticks;
-                RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
             }
         }
 
-        private static uint TicksFromPackage(PackageDataArgs args, uint ticks)
+        private static uint TicksFromBytes(byte[] bytes)
         {
-            var bytes = args.Data;
-            ticks |= bytes[bytes.Length - 4];
+            uint ticks = 0;
+            ticks |= bytes[bytes.Length - 2]; //предпоследний
             ticks = ((ticks) << 8);
-            ticks |= bytes[bytes.Length - 3];
+            ticks |= bytes[bytes.Length - 1]; //последний
             return ticks;
         }
 

@@ -82,6 +82,10 @@
       <Project>{DDC7153B-B531-44E2-9FC0-42E32F7B9E9C}</Project>
       <Name>Devices</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GUI\Sunpoint.csproj">
+      <Project>{24E71085-2E6B-416E-9387-0BAAB3C69CFA}</Project>
+      <Name>Sunpoint</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

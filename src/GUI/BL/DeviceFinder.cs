@@ -9,35 +9,35 @@ namespace Intems.SunPoint.BL
 {
     public class DeviceFinder
     {
-        private const string InfoCmd = "info";
-
-        private readonly Queue<AnswerWaiter> _waiters = new Queue<AnswerWaiter>();
+        private readonly Queue<Receiver> _waiters = new Queue<Receiver>();
 
         public string Find()
         {
             string[] ports = SerialPort.GetPortNames();
 
-            foreach (var sp in ports.Select(port => new SerialPort(port)))
+            var cmd = new byte[] { 0x7e, 0x01, 0x00, 0x01, 0x00, 0x7f };
+            foreach (var sp in ports.Select(port => new SerialPort(port, 19200, Parity.None, 8, StopBits.One)))
             {
                 sp.Open();
-                sp.Write(Encoding.Default.GetBytes(InfoCmd), 0, InfoCmd.Length);
+                sp.Write(cmd, 0, cmd.Length);
 
-                var waiter = new AnswerWaiter(sp);
+                var waiter = new Receiver(sp);
                 waiter.DeviceFound += OnDeviceFound;
                 _waiters.Enqueue(waiter);
             }
+            return String.Empty;
         }
 
         private void OnDeviceFound(object sender, EventArgs args)
         {}
 
-        private class AnswerWaiter
+        private class Receiver
         {
             private readonly Timer _timer;
             private readonly SerialPort _port;
             private readonly object _locker = new object();
 
-            public AnswerWaiter(SerialPort port)
+            public Receiver(SerialPort port)
             {
                 _port = port;
                 _port.DataReceived += OnDataReceived;
