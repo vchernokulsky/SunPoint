@@ -32,6 +32,15 @@ namespace DevSpike
 //            updater.Start();
 
             var finder = new DeviceFinder();
+            finder.FindComplete += (sender, findArgs) =>
+                                       {
+                                           Console.WriteLine("Device finding finished!!!");
+                                           foreach (string portName in findArgs.DevPortNames)
+                                           {
+                                               Console.WriteLine(portName);
+                                           }
+                                       };
+
             finder.Find();
 
             Console.WriteLine("Press any key");
