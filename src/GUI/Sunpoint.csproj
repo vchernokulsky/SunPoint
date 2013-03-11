@@ -89,12 +89,12 @@
     </ApplicationDefinition>
     <Compile Include="BL\DeviceFinder.cs" />
     <Compile Include="BL\Solarium.cs" />
-    <Compile Include="BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="NumKeysControl.xaml.cs">
       <DependentUpon>NumKeysControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SecToMinStringConverter.cs" />
-    <Compile Include="SecToStringConverter.cs" />
+    <Compile Include="Converters\SecToMinStringConverter.cs" />
+    <Compile Include="Converters\SecToStringConverter.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\SunpointViewModel.cs" />
     <Page Include="MainWindow.xaml">

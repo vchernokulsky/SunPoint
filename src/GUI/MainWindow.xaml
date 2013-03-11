@@ -3,13 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:main="clr-namespace:Intems.SunPoint" xmlns:ViewModels="clr-namespace:Intems.SunPoint.ViewModels" mc:Ignorable="d" 
+        xmlns:main="clr-namespace:Intems.SunPoint" xmlns:ViewModels="clr-namespace:Intems.SunPoint.ViewModels"
+        xmlns:Converters="clr-namespace:Intems.SunPoint.Converters" mc:Ignorable="d" 
         Title="Sunpoint" Height="430" Width="620" WindowStartupLocation="CenterScreen"
         d:DataContext="{d:DesignInstance Type=ViewModels:SunpointViewModel}" ResizeMode="NoResize">
     <Window.Resources>
-        <main:SecToStringConverter x:Key="timeConverter" />
-        <main:SecToMinStringConverter x:Key="timeConverter1" />
-        <main:BoolToVisibilityConverter x:Key="boolToVisConverter" TrueVisibility="Visible" FalseVisibility="Hidden"/>
+        <Converters:SecToStringConverter x:Key="timeConverter" />
+        <Converters:SecToMinStringConverter x:Key="timeConverter1" />
+        <Converters:BoolToVisibilityConverter x:Key="boolToVisConverter" TrueVisibility="Visible" FalseVisibility="Hidden"/>
         <Style x:Key="fallDownStyle" TargetType="TextBlock">
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsStarted}" Value="True">

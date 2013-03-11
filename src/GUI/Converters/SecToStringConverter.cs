@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace Intems.SunPoint
+namespace Intems.SunPoint.Converters
 {
     public class SecToStringConverter : IValueConverter
     {

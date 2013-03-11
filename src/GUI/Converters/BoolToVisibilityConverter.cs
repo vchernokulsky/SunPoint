@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace Intems.SunPoint
+namespace Intems.SunPoint.Converters
 {
     class BoolToVisibilityConverter : IValueConverter
     {
