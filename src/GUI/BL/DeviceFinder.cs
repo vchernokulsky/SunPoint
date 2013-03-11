@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Timers;
+using Intems.Devices;
 using Timer = System.Timers.Timer;
 
 namespace Intems.SunPoint.BL
@@ -82,6 +83,7 @@ namespace Intems.SunPoint.BL
         {
             private readonly Timer _timer;
             private readonly SerialPort _port;
+            private readonly DataRetriever _dataRetriever;
             private readonly object _locker = new object();
 
             public event EventHandler DeviceFound;
@@ -91,6 +93,9 @@ namespace Intems.SunPoint.BL
             {
                 _port = port;
                 _port.DataReceived += OnDataReceived;
+
+                _dataRetriever = new DataRetriever();
+                _dataRetriever.PackageRetrieved += OnPackageRetrieved;
 
                 _timer = new Timer(500);
                 _timer.Elapsed += OnTimerElapsed;
@@ -144,23 +149,34 @@ namespace Intems.SunPoint.BL
                 var port = (SerialPort) sender;
                 if(port != null)
                 {
-                    string answer = String.Empty;
-
                     lock (_locker)
                     {
-                        var bytes = new byte[255];
                         if (_port.IsOpen)
                         {
-                            int bytesRead = _port.Read(bytes, 0, bytes.Length);
-                            answer = Encoding.ASCII.GetString(bytes).Substring(0, bytesRead);
-                            if (!String.IsNullOrEmpty(answer))
-                                _timer.Stop();
+                            var bytes = new byte[_port.BytesToRead];
+                            _port.Read(bytes, 0, bytes.Length);
+                            _dataRetriever.AddBytes(bytes);
                         }
                     }
-                    if (answer.Length > 0)
-                        RaiseDeviceFound();
                 }
             }
+
+            private void OnPackageRetrieved(object sender, PackageDataArgs args)
+            {
+                var processor = new PackageProcessor();
+                var result = processor.ProcessBytes(args.Data);
+                var devInfo = Encoding.ASCII.GetString(result.Params);
+                if (!String.IsNullOrEmpty(devInfo))
+                {
+                    string[] arr = devInfo.Split(' ');
+                    if (arr.Length > 0 && arr[0] == "ultraviolet")
+                    {
+                        _timer.Stop();
+                        RaiseDeviceFound();
+                    }
+                }
+            }
+
 
             private void RaiseDeviceFound()
             {
@@ -180,7 +196,6 @@ namespace Intems.SunPoint.BL
                 if (handler != null)
                     handler(this, EventArgs.Empty);
             }
-
         }
     }
 }

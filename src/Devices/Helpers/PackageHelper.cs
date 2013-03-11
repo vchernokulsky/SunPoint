@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 
-namespace Intems.Devices.Helpers {
-    public class PackageHelper {
-        public List<byte> PackToPackage(List<byte> data) {
+namespace Intems.Devices.Helpers 
+{
+    public class PackageHelper 
+    {
+        public List<byte> PackToPackage(List<byte> data) 
+        {
             ushort crc = CalcCRC(0, data.ToArray());
             data.Add((byte) (crc >> 8));
             data.Add((byte) (crc));
