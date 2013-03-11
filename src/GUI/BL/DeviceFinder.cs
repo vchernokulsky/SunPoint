@@ -9,7 +9,7 @@ namespace Intems.SunPoint.BL
 {
     public class DeviceFinder
     {
-        private readonly Queue<Receiver> _waiters = new Queue<Receiver>();
+        private readonly List<Receiver> _waiters = new List<Receiver>();
 
         public string Find()
         {
@@ -23,19 +23,30 @@ namespace Intems.SunPoint.BL
 
                 var waiter = new Receiver(sp);
                 waiter.DeviceFound += OnDeviceFound;
-                _waiters.Enqueue(waiter);
+                waiter.OnDeviceTimeout += OnDeviceTimeout;
+                _waiters.Add(waiter);
             }
             return String.Empty;
         }
 
         private void OnDeviceFound(object sender, EventArgs args)
-        {}
+        {
+        }
+
+        private void OnDeviceTimeout(object sender, EventArgs e)
+        {
+            var obj = sender as Receiver;
+            _waiters.Remove(obj);
+        }
 
         private class Receiver
         {
             private readonly Timer _timer;
             private readonly SerialPort _port;
             private readonly object _locker = new object();
+
+            public event EventHandler DeviceFound;
+            public event EventHandler OnDeviceTimeout;
 
             public Receiver(SerialPort port)
             {
@@ -47,12 +58,36 @@ namespace Intems.SunPoint.BL
                 _timer.Start();
             }
 
+            public override bool Equals(object obj)
+            {
+                bool isEqual = false;
+                var receiver = obj as Receiver;
+                if(receiver != null)
+                {
+                    isEqual = _port.PortName == receiver._port.PortName;
+                }
+                return isEqual;
+            }
+
+            public override int GetHashCode()
+            {
+                int hash = 0;
+                if (_port != null)
+                    hash = _port.PortName.GetHashCode();
+                return hash;
+            }
+
             private void OnTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
             {
                 lock (_locker)
                 {
+                    _timer.Stop();
                     if (_port.IsOpen)
                         _port.Close();
+
+                    var handler = OnDeviceTimeout;
+                    if(handler != null)
+                        handler(this, EventArgs.Empty);
                 }
             }
 
@@ -69,8 +104,6 @@ namespace Intems.SunPoint.BL
                         DeviceFound(this, EventArgs.Empty);
                 }
             }
-
-            public event EventHandler DeviceFound;
         }
     }
 }
