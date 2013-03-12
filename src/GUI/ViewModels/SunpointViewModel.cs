@@ -23,6 +23,7 @@ namespace Intems.SunPoint.ViewModels
 
         public void StopSolary()
         {
+            SunbathTicks = 0;
             _solarium.Stop();
             IsStarted = false;
         }

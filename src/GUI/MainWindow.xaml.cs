@@ -9,6 +9,8 @@ namespace Intems.SunPoint
     public partial class MainWindow : Window
     {
         private readonly SunpointViewModel _model = new SunpointViewModel();
+        //TODO: переписать красиво, это ж хак
+        private NumKeysControl _keysControl;
 
         public MainWindow()
         {
@@ -19,8 +21,10 @@ namespace Intems.SunPoint
 
         private void OnNumKeysChanged(object sender, RoutedEventArgs e)
         {
-            if (!(sender is NumKeysControl)) return;
+            var keysCtrl = sender as NumKeysControl;
+            if (keysCtrl == null) return;
 
+            _keysControl = keysCtrl;
             var val = ((NumKeysControl) sender).Result;
             _model.SunbathTicks = val*60;
         }
@@ -35,6 +39,9 @@ namespace Intems.SunPoint
         {
             var viewModel = (SunpointViewModel) DataContext;
             viewModel.StopSolary();
+            //TODO: переписать нафик!!!
+            if (_keysControl != null)
+                _keysControl.Clear();
         }
     }
 }

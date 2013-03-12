@@ -36,13 +36,19 @@ namespace Intems.SunPoint
         }
         public void RaiseChangedEvent()
         {
-            var newEventArgs = new RoutedEventArgs(NumKeysControl.ChangedEvent);
+            var newEventArgs = new RoutedEventArgs(ChangedEvent);
             RaiseEvent(newEventArgs);
         }
 
         public int Result
         {
             get { return _result; }
+        }
+
+        public void Clear()
+        {
+            _result = 0;
+            _pressedKeys = String.Empty;
         }
 
         private void OnButtonClick(object sender, RoutedEventArgs e)

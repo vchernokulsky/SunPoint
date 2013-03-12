@@ -84,7 +84,7 @@ namespace Intems.Devices
                 }
                 else
                 {
-                    result = new PackageProcessResult {Type = AnswerType.BadPackage};
+                    result = new PackageProcessResult {Type = AnswerType.BadPackage, Params = bytes};
                 }
                 
             }

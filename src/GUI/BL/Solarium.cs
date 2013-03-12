@@ -45,6 +45,10 @@ namespace Intems.SunPoint.BL
 
         public void Stop()
         {
+            var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, 0);
+            var pkg = new Package(cmd);
+            _worker.SendPackage(pkg);
+
             _ticksUpdater.TicksChanged -= OnTicksChanged;
             RaiseSunbathStopped(EventArgs.Empty);
         }
