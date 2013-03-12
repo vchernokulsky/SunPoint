@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Intems.Devices
 {
@@ -22,17 +21,23 @@ namespace Intems.Devices
         private readonly List<byte> _response = new List<byte>();
         private readonly List<byte> _bytes = new List<byte>();
 
+        private readonly object _locker = new object();
+
         public event EventHandler<PackageDataArgs> PackageRetrieved;
 
         public void AddBytes(byte[] bytes)
         {
-            if (bytes == null) return;
+            lock (_locker)
+            {
+                if (bytes == null) return;
 
-            _bytes.AddRange(bytes);
-            ProcessData();
+                _bytes.AddRange(bytes);
+                ProcessData();
+            }
         }
 
         private PackageParseState _parseState = PackageParseState.PackageEnd;
+
         private void ProcessData()
         {
             foreach (var @byte in _bytes)
@@ -88,13 +93,9 @@ namespace Intems.Devices
 
         private void RaisePackageRetrieved(PackageDataArgs e)
         {
-            var thread = new Thread(() =>
-                                        {
-                                            var handler = PackageRetrieved;
-                                            if (handler != null)
-                                                handler(this, e);
-                                        }){Name = "GUI notification thread"};
-            thread.Start();
+            var handler = PackageRetrieved;
+            if (handler != null)
+                handler(this, e);
         }
     }
 }

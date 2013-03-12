@@ -1,8 +1,10 @@
 using System;
 using System.IO.Ports;
+using System.Threading;
 using System.Timers;
 using Intems.Devices.Commands;
 using Intems.Devices.Interfaces;
+using Timer = System.Timers.Timer;
 
 namespace Intems.Devices
 {
@@ -60,16 +62,18 @@ namespace Intems.Devices
 
         private void OnDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            byte[] buffer = null;
             try
             {
                 if (!_isTimeout)
                 {
                     lock (_locker)
                     {
-                        buffer = new byte[_port.BytesToRead];
+                        var buffer = new byte[_port.BytesToRead];
                         _port.Read(buffer, 0, buffer.Length);
                         _isAnswerReceived = true;
+                        //отпускаем системный поток
+                        var th = new Thread(() => _retriever.AddBytes(buffer)){Name = "data process thread"};
+                        th.Start();
                     }
                 }
             }
@@ -77,7 +81,6 @@ namespace Intems.Devices
             {
                 Console.WriteLine(ex);
             }
-            _retriever.AddBytes(buffer);
         }
 
         private void OnPackageRetrieved(object sender, PackageDataArgs args)
