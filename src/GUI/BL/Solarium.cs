@@ -18,7 +18,8 @@ namespace Intems.SunPoint.BL
 
         public Solarium()
         {
-            _worker = new TransportLayerWorker("COM5", 19200);
+            //_worker = new TransportLayerWorker("COM5", 19200);
+            _worker = new TransportLayerWorker();
             _ticksUpdater = new TicksUpdater(_worker);
         }
 

@@ -19,6 +19,9 @@ namespace Intems.Devices
 
         private readonly object _locker = new object();
 
+        public TransportLayerWorker()
+        {}
+
         public TransportLayerWorker(string portName, int baudRate) 
         {
             _port = new SerialPort(portName, baudRate, Parity.None, 8, StopBits.One);
