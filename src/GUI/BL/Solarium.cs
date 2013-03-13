@@ -1,10 +1,11 @@
 ﻿using System;
 using Intems.Devices;
 using Intems.Devices.Commands;
+using Intems.Devices.Interfaces;
 
 namespace Intems.SunPoint.BL
 {
-    class Solarium
+    class Solarium : IDeviceResponse
     {
         private const int DevNumber = 1;
         private const int ChannelNumber = 1;
@@ -31,12 +32,23 @@ namespace Intems.SunPoint.BL
                 RaiseSunbathStopped(EventArgs.Empty);
         }
 
+        public void PushBytes(byte[] bytes)
+        {
+        }
+
+        public void PushTimeout()
+        {
+            throw new NotImplementedException();
+        }
+
+
         public void Start(int ticks)
         {
             //посылаем команду на установку занчения в канале
             var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, (ushort)ticks);
             var pkg = new Package(cmd);
-            _worker.SendPackage(pkg);
+            _worker.SendPackage(pkg, this);
+            //_worker.SendPackage(pkg);
             //запускаем диспетчер обратного отсчета
             _ticksUpdater.TicksChanged += OnTicksChanged;
             _ticksUpdater.Start();
@@ -48,7 +60,7 @@ namespace Intems.SunPoint.BL
         {
             var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, 0);
             var pkg = new Package(cmd);
-            _worker.SendPackage(pkg);
+            _worker.SendPackage(pkg, this);
 
             _ticksUpdater.TicksChanged -= OnTicksChanged;
             RaiseSunbathStopped(EventArgs.Empty);

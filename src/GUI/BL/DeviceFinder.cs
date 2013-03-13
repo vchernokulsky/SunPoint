@@ -180,6 +180,9 @@ namespace Intems.SunPoint.BL
 
             private void RaiseDeviceFound()
             {
+                if(_port.IsOpen)
+                    _port.Close();
+
                 //надо отпустить системный поток
                 var th = new Thread(() =>
                                         {
@@ -192,6 +195,9 @@ namespace Intems.SunPoint.BL
 
             private void RaiseDeviceTimeout()
             {
+                if(_port.IsOpen)
+                    _port.Close();
+
                 var handler = OnDeviceTimeout;
                 if (handler != null)
                     handler(this, EventArgs.Empty);

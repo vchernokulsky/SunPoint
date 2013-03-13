@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Intems.Devices.Commands;
+using Intems.Devices.Interfaces;
 
 namespace Intems.Devices
 {
@@ -11,7 +12,7 @@ namespace Intems.Devices
         public ushort Ticks { get; set; }
     }
 
-    public class TicksUpdater
+    public class TicksUpdater : IDeviceResponse
     {
         private const int TimeInterval = 50;
         private uint _ticks;
@@ -39,33 +40,32 @@ namespace Intems.Devices
             _timer.Start();
         }
 
-//        public void Stop()
-//        {
-//            _timer.Stop();
-//        }
-
         private void OnPackageReceived(object sender, PackageDataArgs args)
         {
             var result = _packageProcessor.ProcessBytes(args.Data);
             if (result == null) return;
 
-            if (result.Type==AnswerType.Ok)
+            switch (result.Type)
             {
-                uint ticks = TicksFromBytes(result.Params);
-                if (ticks < _ticks)
-                {
-                    RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
-                    if(ticks == 0)
-                        _timer.Stop(); //дотикали до конца больше не надо опрашивать
-                }
-                _ticks = ticks;
-            }
-            else
-            {
-                if (result.Type == AnswerType.BadPackage)
-                {
+                case AnswerType.Ok:
+                    {
+                        uint ticks = TicksFromBytes(result.Params);
+                        if (ticks < _ticks)
+                        {
+                            RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
+                            if (ticks == 0)
+                                _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                        }
+                        _ticks = ticks;
+                    }
+                    break;
+
+                case AnswerType.Error:
+                    break;
+
+                case AnswerType.BadPackage:
                     Debugger.Break();
-                }
+                    break;
             }
         }
 
@@ -84,7 +84,8 @@ namespace Intems.Devices
             {
                 _timer.Stop();
                 var pkg = new Package(new GetChannelStateCommand(1));
-                _worker.SendPackage(pkg);
+                //_worker.SendPackage(pkg);
+                _worker.SendPackage(pkg, this);
                 _timer.Start();
             }
         }
@@ -93,6 +94,40 @@ namespace Intems.Devices
         {
             EventHandler<TicksUpdaterArgs> handler = TicksChanged;
             if (handler != null) handler(this, e);
+        }
+
+        public void PushBytes(byte[] bytes)
+        {
+            var result = _packageProcessor.ProcessBytes(bytes);
+            if (result == null) return;
+
+            switch (result.Type)
+            {
+                case AnswerType.Ok:
+                    {
+                        uint ticks = TicksFromBytes(result.Params);
+                        if (ticks < _ticks)
+                        {
+                            RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
+                            if (ticks == 0)
+                                _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                        }
+                        _ticks = ticks;
+                    }
+                    break;
+
+                case AnswerType.Error:
+                    break;
+
+                case AnswerType.BadPackage:
+                    Debugger.Break();
+                    break;
+            }
+        }
+
+        public void PushTimeout()
+        {
+            throw new NotImplementedException();
         }
     }
 }

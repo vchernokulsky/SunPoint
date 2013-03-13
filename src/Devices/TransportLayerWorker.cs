@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Ports;
 using System.Threading;
 using System.Timers;
@@ -31,7 +32,7 @@ namespace Intems.Devices
             _retriever = new DataRetriever();
             _retriever.PackageRetrieved += OnPackageRetrieved;
 
-            _timeoutTimer = new Timer(250);
+            _timeoutTimer = new Timer(500);
             _timeoutTimer.Elapsed += OnTimeoutTimerElapsed;
         }
 
@@ -41,6 +42,31 @@ namespace Intems.Devices
         }
 
         public event EventHandler<PackageDataArgs> PackageReceived;
+
+        private readonly Queue<IDeviceResponse> _responses = new Queue<IDeviceResponse>();
+
+        public void SendPackage(Package package, IDeviceResponse deviceResponse)
+        {
+            if (_port != null && _port.IsOpen)
+            {
+                try
+                {
+                    lock (_locker)
+                    {
+                        _responses.Enqueue(deviceResponse);
+                        _port.Write(package.Bytes, 0, package.Bytes.Length);
+                        //говорим, что timeout не произошел и ответ не получен
+                        _isAnswerReceived = false; _isTimeout = false;
+                        _timeoutTimer.Start();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+        }
 
         public void SendPackage(Package package)
         {
@@ -69,15 +95,16 @@ namespace Intems.Devices
             {
                 if (!_isTimeout)
                 {
+                    byte[] buffer;
                     lock (_locker)
                     {
-                        var buffer = new byte[_port.BytesToRead];
+                        buffer = new byte[_port.BytesToRead];
                         _port.Read(buffer, 0, buffer.Length);
                         _isAnswerReceived = true;
-                        //отпускаем системный поток
-                        var th = new Thread(() => _retriever.AddBytes(buffer)){Name = "data process thread"};
-                        th.Start();
                     }
+                    //отпускаем системный поток
+                    var th = new Thread(() => _retriever.AddBytes(buffer)) { Name = "data process thread" };
+                    th.Start();
                 }
             }
             catch (Exception ex)
@@ -88,9 +115,15 @@ namespace Intems.Devices
 
         private void OnPackageRetrieved(object sender, PackageDataArgs args)
         {
-            var handler = PackageReceived;
-            if (handler != null)
-                handler(this, args);
+            lock (_locker)
+            {
+                var resp = _responses.Dequeue();
+                resp.PushBytes(args.Data);
+            }
+
+//            var handler = PackageReceived;
+//            if (handler != null)
+//                handler(this, args);
         }
 
 //        public HVChannelSensor SenseHV(int devId) {
