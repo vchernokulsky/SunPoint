@@ -65,7 +65,6 @@ namespace Intems.Devices
                     Console.WriteLine(ex);
                 }
             }
-
         }
 
         public void SendPackage(Package package)
@@ -120,7 +119,6 @@ namespace Intems.Devices
                 var resp = _responses.Dequeue();
                 resp.PushBytes(args.Data);
             }
-
 //            var handler = PackageReceived;
 //            if (handler != null)
 //                handler(this, args);

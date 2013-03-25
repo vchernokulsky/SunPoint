@@ -56,7 +56,9 @@
     <Compile Include="DataRetriever.cs" />
     <Compile Include="ErrorHandler.cs" />
     <Compile Include="Commands\CmdCodes.cs" />
-    <Compile Include="ErrorProcessor.cs" />
+    <Compile Include="ErrorProcessing\CommonProcessor.cs" />
+    <Compile Include="ErrorProcessing\ErrorDispatcher.cs" />
+    <Compile Include="ErrorProcessing\IErrorProcessor.cs" />
     <Compile Include="Interfaces\IDeviceResponse.cs" />
     <Compile Include="Interfaces\ITransportLayerWorker.cs" />
     <Compile Include="Helpers\PackageHelper.cs" />

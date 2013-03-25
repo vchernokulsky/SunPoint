@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Timers;
 using Intems.Devices.Commands;
+using Intems.Devices.ErrorProcessing;
 using Intems.Devices.Interfaces;
 
 namespace Intems.Devices
@@ -12,17 +12,23 @@ namespace Intems.Devices
         public ushort Ticks { get; set; }
     }
 
+    public class DeviceErrorArgs : EventArgs
+    {}
+
     public class TicksUpdater : IDeviceResponse
     {
         private const int TimeInterval = 50;
         private uint _ticks;
 
-        private readonly Timer _timer;
         private readonly TransportLayerWorker _worker;
         private readonly PackageProcessor _packageProcessor;
+        private readonly ErrorDispatcher _errorDispatcher;
+
+        private readonly Timer _timer;
         private readonly object _locker = new object();
 
         public event EventHandler<TicksUpdaterArgs> TicksChanged;
+        public event EventHandler<DeviceErrorArgs> DeviceError;
 
         public TicksUpdater(TransportLayerWorker worker)
         {
@@ -30,6 +36,7 @@ namespace Intems.Devices
             _worker.PackageReceived += OnPackageReceived;
 
             _packageProcessor = new PackageProcessor();
+            _errorDispatcher = new ErrorDispatcher();
 
             _timer = new Timer {Interval = TimeInterval};
             _timer.Elapsed += OnTimerElapsed;
@@ -96,32 +103,31 @@ namespace Intems.Devices
             if (handler != null) handler(this, e);
         }
 
+        private void RaiseDeviceError(DeviceErrorArgs args)
+        {
+            var handler = DeviceError;
+            if (handler != null) handler(this, args);
+        }
+
         public void PushBytes(byte[] bytes)
         {
             var result = _packageProcessor.ProcessBytes(bytes);
             if (result == null) return;
 
-            switch (result.Type)
+            if(result.Type == AnswerType.Ok)
             {
-                case AnswerType.Ok:
-                    {
-                        uint ticks = TicksFromBytes(result.Params);
-                        if (ticks < _ticks)
-                        {
-                            RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
-                            if (ticks == 0)
-                                _timer.Stop(); //дотикали до конца больше не надо опрашивать
-                        }
-                        _ticks = ticks;
-                    }
-                    break;
-
-                case AnswerType.Error:
-                    break;
-
-                case AnswerType.BadPackage:
-                    Debugger.Break();
-                    break;
+                uint ticks = TicksFromBytes(result.Params);
+                if (ticks < _ticks)
+                {
+                    RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
+                    if (ticks == 0)
+                        _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                }
+                _ticks = ticks;
+            }
+            else
+            {
+                _errorDispatcher.PushErrorPackage(this, result);
             }
         }
 
