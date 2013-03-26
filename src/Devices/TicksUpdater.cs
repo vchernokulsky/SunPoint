@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Timers;
 using Intems.Devices.Commands;
 using Intems.Devices.ErrorProcessing;
@@ -17,10 +17,18 @@ namespace Intems.Devices
 
     public class TicksUpdater : IDeviceResponse
     {
+        private const int MaxBadPkgCount = 5;
+        private const int MaxTimeoutCount = 5;
         private const int TimeInterval = 50;
+
         private uint _ticks;
 
-        private readonly TransportLayerWorker _worker;
+        private int _badPkgCount;
+        private int _timeoutCount;
+
+        private ErrorType _devError = ErrorType.None;
+
+        private readonly ITransportLayerWorker _worker;
         private readonly PackageProcessor _packageProcessor;
         private readonly ErrorDispatcher _errorDispatcher;
 
@@ -30,13 +38,13 @@ namespace Intems.Devices
         public event EventHandler<TicksUpdaterArgs> TicksChanged;
         public event EventHandler<DeviceErrorArgs> DeviceError;
 
-        public TicksUpdater(TransportLayerWorker worker)
+        public TicksUpdater(ITransportLayerWorker worker)
         {
-            _worker = worker;
-            _worker.PackageReceived += OnPackageReceived;
-
-            _packageProcessor = new PackageProcessor();
             _errorDispatcher = new ErrorDispatcher();
+            _packageProcessor = new PackageProcessor();
+
+            _worker = worker;
+            //_worker.PackageReceived += OnPackageReceived;
 
             _timer = new Timer {Interval = TimeInterval};
             _timer.Elapsed += OnTimerElapsed;
@@ -47,41 +55,56 @@ namespace Intems.Devices
             _timer.Start();
         }
 
-        private void OnPackageReceived(object sender, PackageDataArgs args)
+        public void PushBytes(byte[] bytes)
         {
-            var result = _packageProcessor.ProcessBytes(args.Data);
+            var result = _packageProcessor.ProcessBytes(bytes);
             if (result == null) return;
 
-            switch (result.Type)
+            if (result.Type == AnswerType.Ok)
             {
-                case AnswerType.Ok:
-                    {
-                        uint ticks = TicksFromBytes(result.Params);
-                        if (ticks < _ticks)
-                        {
-                            RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
-                            if (ticks == 0)
-                                _timer.Stop(); //дотикали до конца больше не надо опрашивать
-                        }
-                        _ticks = ticks;
-                    }
-                    break;
+                uint ticks = TicksFromBytes(result.Params);
+                if (ticks < _ticks)
+                {
+                    RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
+                    if (ticks == 0)
+                        _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                }
+                _ticks = ticks;
+            }
+            else
+            {
+                switch (result.Type)
+                {
+                    case AnswerType.Error:
+                        _timer.Stop();
+                        _devError = result.ErrorType;
+                        break;
 
-                case AnswerType.Error:
-                    break;
-
-                case AnswerType.BadPackage:
-                    Debugger.Break();
-                    break;
+                    case AnswerType.BadPackage:
+                        _badPkgCount++;
+                        break;
+                }
             }
         }
 
-        private static uint TicksFromBytes(byte[] bytes)
+        public void PushTimeout()
+        {
+            if (++_timeoutCount >= MaxTimeoutCount)
+            {
+                RaiseDeviceError(new DeviceErrorArgs());
+#if DEBUG
+                IsTimeout = true;
+#endif
+            }
+        }
+
+
+        private static uint TicksFromBytes(IList<byte> bytes)
         {
             uint ticks = 0;
-            ticks |= bytes[bytes.Length - 2]; //предпоследний
+            ticks |= bytes[bytes.Count - 2]; //предпоследний
             ticks = ((ticks) << 8);
-            ticks |= bytes[bytes.Length - 1]; //последний
+            ticks |= bytes[bytes.Count - 1]; //последний
             return ticks;
         }
 
@@ -109,31 +132,24 @@ namespace Intems.Devices
             if (handler != null) handler(this, args);
         }
 
-        public void PushBytes(byte[] bytes)
-        {
-            var result = _packageProcessor.ProcessBytes(bytes);
-            if (result == null) return;
+#region PROPERTIES FOR TEST
 
-            if(result.Type == AnswerType.Ok)
-            {
-                uint ticks = TicksFromBytes(result.Params);
-                if (ticks < _ticks)
-                {
-                    RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
-                    if (ticks == 0)
-                        _timer.Stop(); //дотикали до конца больше не надо опрашивать
-                }
-                _ticks = ticks;
-            }
-            else
-            {
-                _errorDispatcher.PushErrorPackage(this, result);
-            }
-        }
+#if DEBUG
 
-        public void PushTimeout()
-        {
-            throw new NotImplementedException();
-        }
+        public uint Ticks { get { return _ticks; } }
+
+        public int BadPkgCount { get { return _badPkgCount; } }
+
+        public ErrorType DevError { get { return _devError; } }
+
+        public Timer FreqTimer { get { return _timer; } }
+
+        public int TimeoutCount { get { return MaxTimeoutCount; } }
+
+        public bool IsTimeout { get; private set; }
+#endif
+
+#endregion
+
     }
 }

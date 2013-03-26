@@ -50,6 +50,7 @@
     <Compile Include="DataRetrieverTest.cs" />
     <Compile Include="PackageProcessorTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TicksUpdaterTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Devices\Devices.csproj">

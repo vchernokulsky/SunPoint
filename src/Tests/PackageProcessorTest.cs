@@ -40,9 +40,10 @@ namespace Tests
         [Test]
         public void ErrorInAnswerTest()
         {
-            var pkgBytes = new byte[] {0x00, 0x01, 0x80, 0x01, /*CRC bytes ->*/0x90, 0x20};
+            var errType = (byte) ErrorType.FunctionNotExist;
+            var pkgBytes = new byte[] { 0x01, 0x8a, errType, /*CRC bytes ->*/0x9a, 0x20};
 
-            var expected = new PackageProcessResult {Type = AnswerType.Error, Address = 0x00, Function = 0x01};
+            var expected = new PackageProcessResult {Type = AnswerType.Error, Address = 0x01, Function = 0x0a};
             var actual = _processor.ProcessBytes(pkgBytes);
 
             Assert.AreEqual(expected, actual);

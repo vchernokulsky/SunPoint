@@ -31,9 +31,9 @@ namespace Tests
 
             using (_repository.Record())
             {
-                //_errorProcessor.Raise(x => x.Error += null, cp, new ErrorProcessArgs());
-                IEventRaiser raiser = _errorProcessor.GetEventRaiser(x => x.Error += null);
-                raiser.Raise(_errorProcessor, new ErrorProcessArgs());
+                _errorProcessor.Raise(x => x.Error += null, cp, new ErrorProcessArgs());
+//                IEventRaiser raiser = _errorProcessor.GetEventRaiser(x => x.Error += null);
+//                raiser.Raise(_errorProcessor, new ErrorProcessArgs());
             }
             using (_repository.Playback())
             {

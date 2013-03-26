@@ -11,6 +11,20 @@ namespace Intems.Devices.ErrorProcessing
 
         public void ProcessError(PackageProcessResult result)
         {
+            if(result.Type == AnswerType.Ok) return;
+
+            switch (result.ErrorType)
+            {
+                case ErrorType.DeviceFailed:
+                    RaiseError(new ErrorProcessArgs());
+                    break;
+            }
+        }
+
+        public void RaiseError(ErrorProcessArgs e)
+        {
+            EventHandler<ErrorProcessArgs> handler = Error;
+            if (handler != null) handler(this, e);
         }
     }
 }

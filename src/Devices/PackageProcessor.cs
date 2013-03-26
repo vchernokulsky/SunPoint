@@ -74,10 +74,11 @@ namespace Intems.Devices
                 if(CalcCRC(data)==crcInPakage)
                 {
                     result = new PackageProcessResult { Type = AnswerType.Ok, Address = bytes[0], Function = bytes[1] };
-                    if(data.Length==HeadLength + 2 && data[2]==0x80)
+                    if(data.Length==HeadLength + 1 && (data[1]&0x80)==0x80)
                     {
                         result.Type = AnswerType.Error;
-                        result.ErrorType = (ErrorType) data[3];
+                        result.ErrorType = (ErrorType) data[2];
+                        result.Function = (byte) (data[1] & 0x7f);
                     }
                     result.Params = new byte[bytes.Length - MinPackageLength];
                     Array.ConstrainedCopy(data, HeadLength, result.Params, 0, result.Params.Length);
