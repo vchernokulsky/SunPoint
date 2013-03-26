@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ButtonPressPollerTest.cs" />
     <Compile Include="CommonProcessorTest.cs" />
     <Compile Include="DataRetrieverTest.cs" />
     <Compile Include="PackageProcessorTest.cs" />

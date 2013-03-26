@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Timers;
 using Intems.Devices.Commands;
+using Intems.Devices.Interfaces;
 
 namespace Intems.Devices
 {
@@ -15,15 +16,19 @@ namespace Intems.Devices
         public PressedBtn Button { get; set; }
     }
 
-    public class BtnPressWaiter
+    public class ButtonPressPoller : IDeviceResponse
     {
-        private readonly Timer _timer;
         private readonly TransportLayerWorker _worker;
 
-        public BtnPressWaiter(TransportLayerWorker worker)
+        private readonly Timer _timer;
+        private readonly PackageProcessor _packageProcessor;
+
+        public ButtonPressPoller(TransportLayerWorker worker)
         {
             _worker = worker;
             _worker.PackageReceived += OnPackageReceived;
+
+            _packageProcessor = new PackageProcessor();
 
             _timer = new Timer(100);
             _timer.Elapsed += OnTimerElapsed;
@@ -31,6 +36,15 @@ namespace Intems.Devices
         }
 
         public event EventHandler<BtnPressArgs> BtnPressed;
+
+        public void PushBytes(byte[] bytes)
+        {
+            var result = _packageProcessor.ProcessBytes(bytes);
+        }
+
+        public void PushTimeout()
+        {
+        }
 
         public void RaiseBtnPressed(BtnPressArgs e)
         {

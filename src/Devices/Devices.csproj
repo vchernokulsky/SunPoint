@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BtnPressWaiter.cs" />
+    <Compile Include="DevicePollers\ButtonPressPoller.cs" />
     <Compile Include="Commands\Command.cs" />
     <Compile Include="Commands\DevResetCommand.cs" />
     <Compile Include="Commands\GetBtnStateCommand.cs" />
@@ -68,6 +68,7 @@
     <Compile Include="TicksUpdater.cs" />
     <Compile Include="TransportLayerWorker.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -24,23 +24,6 @@ namespace Intems.SunPoint.BL
             _ticksUpdater = new TicksUpdater(_worker);
         }
 
-        private void OnTicksChanged(object sender, TicksUpdaterArgs e)
-        {
-            if(e.Ticks > 0)
-                RaiseTickChanged(EventArgs.Empty);
-            else
-                RaiseSunbathStopped(EventArgs.Empty);
-        }
-
-        public void PushBytes(byte[] bytes)
-        {
-        }
-
-        public void PushTimeout()
-        {
-            throw new NotImplementedException();
-        }
-
 
         public void Start(int ticks)
         {
@@ -48,7 +31,7 @@ namespace Intems.SunPoint.BL
             var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, (ushort)ticks);
             var pkg = new Package(cmd);
             _worker.SendPackage(pkg, this);
-            //_worker.SendPackage(pkg);
+
             //запускаем диспетчер обратного отсчета
             _ticksUpdater.TicksChanged += OnTicksChanged;
             _ticksUpdater.Start();
@@ -66,21 +49,37 @@ namespace Intems.SunPoint.BL
             RaiseSunbathStopped(EventArgs.Empty);
         }
 
+        public void PushBytes(byte[] bytes)
+        {
+        }
+
+        public void PushTimeout()
+        {
+        }
+
         public int Time { get; set; }
 
-        public void RaiseSunbathStarted(EventArgs e)
+        private void OnTicksChanged(object sender, TicksUpdaterArgs e)
+        {
+            if (e.Ticks > 0)
+                RaiseTickChanged(EventArgs.Empty);
+            else
+                RaiseSunbathStopped(EventArgs.Empty);
+        }
+
+        private void RaiseSunbathStarted(EventArgs e)
         {
             EventHandler handler = SunbathStarted;
             if (handler != null) handler(this, e);
         }
 
-        public void RaiseSunbathStopped(EventArgs e)
+        private void RaiseSunbathStopped(EventArgs e)
         {
             EventHandler handler = SunbathStopped;
             if (handler != null) handler(this, e);
         }
 
-        public void RaiseTickChanged(EventArgs e)
+        private void RaiseTickChanged(EventArgs e)
         {
             EventHandler handler = TickChanged;
             if (handler != null) handler(this, e);
