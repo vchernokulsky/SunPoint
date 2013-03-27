@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Timers;
 using Intems.Devices.Commands;
 using Intems.Devices.Interfaces;
 
-namespace Intems.Devices
+namespace Intems.Devices.DevicePollers
 {
     public enum PressedBtn
     {
@@ -18,19 +19,18 @@ namespace Intems.Devices
 
     public class ButtonPressPoller : IDeviceResponse
     {
-        private readonly TransportLayerWorker _worker;
+        private readonly ITransportLayerWorker _worker;
 
         private readonly Timer _timer;
         private readonly PackageProcessor _packageProcessor;
 
-        public ButtonPressPoller(TransportLayerWorker worker)
+        public ButtonPressPoller(ITransportLayerWorker worker)
         {
             _worker = worker;
-            _worker.PackageReceived += OnPackageReceived;
 
             _packageProcessor = new PackageProcessor();
 
-            _timer = new Timer(100);
+            _timer = new Timer(250);
             _timer.Elapsed += OnTimerElapsed;
             _timer.Start();
         }
@@ -40,38 +40,37 @@ namespace Intems.Devices
         public void PushBytes(byte[] bytes)
         {
             var result = _packageProcessor.ProcessBytes(bytes);
+            if(result.Type == AnswerType.Ok)
+            {
+                if(result.Function == CmdCodes.GET_DEV_STATE)
+                {
+                    var stateByte = result.Params[1];
+                    bool start = (stateByte & 0x01) == 1;
+                    bool stop =  ((stateByte >> 1) & 0x01) == 1;
+                    if (start || stop)
+                    {
+                        var btn = start ? PressedBtn.StartBtn : PressedBtn.StopBtn;
+                        RaiseBtnPressed(new BtnPressArgs {Button = btn});
+                    }
+                }
+            }
+            else
+            {
+                Debugger.Break();
+            }
         }
 
         public void PushTimeout()
         {
         }
 
-        public void RaiseBtnPressed(BtnPressArgs e)
+        private void RaiseBtnPressed(BtnPressArgs e)
         {
             EventHandler<BtnPressArgs> handler = BtnPressed;
             if (handler != null) handler(this, e);
-        }
-
-        private void OnPackageReceived(object sender, PackageDataArgs packageDataArgs)
-        {
-            PressedBtn result = PressedBtn.None;
-
-            var bytes = packageDataArgs.Data;
-            byte stateByte = bytes[3];
-            bool start = (stateByte & 0x01) == 1;
-            bool stop = ((stateByte >> 1) & 0x01) == 1;
-
-            if(start)
-                result = PressedBtn.StartBtn;
-            else
-                if(stop)
-                    result = PressedBtn.StopBtn;
-
-            if (start || stop)
-            {
-                _timer.Stop();
-                RaiseBtnPressed(new BtnPressArgs {Button = result});
-            }
+#if DEBUG
+            Button = e.Button;
+#endif
         }
 
         private void OnTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
@@ -80,9 +79,15 @@ namespace Intems.Devices
 
             Command cmd = new GetBtnStateCommand(1);
             var package = new Package(cmd);
-            _worker.SendPackage(package);
+            _worker.SendPackage(package, this);
 
             _timer.Start();
         }
+
+#if DEBUG
+
+        public PressedBtn Button { get; private set; }
+
+#endif
     }
 }

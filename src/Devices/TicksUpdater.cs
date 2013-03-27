@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Timers;
 using Intems.Devices.Commands;
 using Intems.Devices.ErrorProcessing;
@@ -44,7 +45,6 @@ namespace Intems.Devices
             _packageProcessor = new PackageProcessor();
 
             _worker = worker;
-            //_worker.PackageReceived += OnPackageReceived;
 
             _timer = new Timer {Interval = TimeInterval};
             _timer.Elapsed += OnTimerElapsed;
@@ -62,14 +62,21 @@ namespace Intems.Devices
 
             if (result.Type == AnswerType.Ok)
             {
-                uint ticks = TicksFromBytes(result.Params);
-                if (ticks < _ticks)
+                if (result.Function == CmdCodes.GET_CHANNEL_STATE)
                 {
-                    RaiseTicksChanged(new TicksUpdaterArgs { Ticks = (ushort)ticks });
-                    if (ticks == 0)
-                        _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                    uint ticks = TicksFromBytes(result.Params);
+                    if (ticks < _ticks)
+                    {
+                        RaiseTicksChanged(new TicksUpdaterArgs {Ticks = (ushort) ticks});
+                        if (ticks == 0)
+                            _timer.Stop(); //дотикали до конца больше не надо опрашивать
+                    }
+                    _ticks = ticks;
                 }
-                _ticks = ticks;
+                else
+                {
+                    //Debugger.Break();
+                }
             }
             else
             {

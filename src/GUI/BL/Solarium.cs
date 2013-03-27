@@ -1,6 +1,7 @@
 ﻿using System;
 using Intems.Devices;
 using Intems.Devices.Commands;
+using Intems.Devices.DevicePollers;
 using Intems.Devices.Interfaces;
 
 namespace Intems.SunPoint.BL
@@ -11,6 +12,8 @@ namespace Intems.SunPoint.BL
         private const int ChannelNumber = 1;
 
         private readonly TransportLayerWorker _worker;
+
+        private readonly ButtonPressPoller _pressPoller;
         private readonly TicksUpdater _ticksUpdater;
 
         public event EventHandler SunbathStarted;
@@ -19,24 +22,33 @@ namespace Intems.SunPoint.BL
 
         public Solarium()
         {
-            //_worker = new TransportLayerWorker("COM5", 19200);
-            _worker = new TransportLayerWorker();
+            _worker = new TransportLayerWorker("COM5", 19200);
+
+            _pressPoller = new ButtonPressPoller(_worker);
             _ticksUpdater = new TicksUpdater(_worker);
         }
 
-
+        private int _ticks;
         public void Start(int ticks)
         {
-            //посылаем команду на установку занчения в канале
-            var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, (ushort)ticks);
-            var pkg = new Package(cmd);
-            _worker.SendPackage(pkg, this);
+            _ticks = ticks;
+            _pressPoller.BtnPressed += OnButtonPressed;
+        }
 
-            //запускаем диспетчер обратного отсчета
-            _ticksUpdater.TicksChanged += OnTicksChanged;
-            _ticksUpdater.Start();
-
-            RaiseSunbathStarted(EventArgs.Empty);
+        private void OnButtonPressed(object sender, BtnPressArgs btnPressArgs)
+        {
+            if (btnPressArgs.Button == PressedBtn.StartBtn)
+            {
+                //посылаем команду на установку занчения в канале
+                var cmd = new SetChannelStateCommand(DevNumber, ChannelNumber, 0, (ushort) _ticks);
+                var pkg = new Package(cmd);
+                _worker.SendPackage(pkg, this);
+                //запускаем диспетчер обратного отсчета
+                _ticksUpdater.TicksChanged += OnTicksChanged;
+                _ticksUpdater.Start();
+                //оповещаем GUI о старте загара
+                RaiseSunbathStarted(EventArgs.Empty);
+            }
         }
 
         public void Stop()

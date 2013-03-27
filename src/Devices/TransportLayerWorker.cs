@@ -38,7 +38,12 @@ namespace Intems.Devices
 
         private void OnTimeoutTimerElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
         {
-            _isTimeout = !_isAnswerReceived;
+            lock (_locker)
+            {
+                _isTimeout = !_isAnswerReceived;
+                if (_isTimeout && _responses.Count > 0)
+                    _responses.Dequeue();
+            }
         }
 
         public event EventHandler<PackageDataArgs> PackageReceived;
@@ -116,12 +121,12 @@ namespace Intems.Devices
         {
             lock (_locker)
             {
-                var resp = _responses.Dequeue();
-                resp.PushBytes(args.Data);
+                if (_responses.Count > 0)
+                {
+                    var resp = _responses.Dequeue();
+                    resp.PushBytes(args.Data);
+                }
             }
-//            var handler = PackageReceived;
-//            if (handler != null)
-//                handler(this, args);
         }
 
 //        public HVChannelSensor SenseHV(int devId) {
